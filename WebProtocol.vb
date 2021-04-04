@@ -3,13 +3,14 @@ Imports System.IO
 
 Public Class WebProtocol
 	Protected Sub New()
-
+		Timeout = 3000 ' 在此鄙视一下酷我的辣鸡服务器 :（
 	End Sub
 	Public Sub New(url As String, Optional ComputerUA As Boolean = True)
 		Me.Url = url
 		ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls
 		request = WebRequest.Create(url)
 		Me.ComputerUA = ComputerUA
+		Timeout = 3000 ' 在此鄙视一下酷我的辣鸡服务器 :（
 	End Sub
 	Public ComputerUA As Boolean = True
 	Protected request As HttpWebRequest
@@ -66,7 +67,7 @@ Public Class WebProtocol
 		End Set
 	End Property
 	Public Property AutoUA As Boolean = True
-	Public Property RequestInterval As Integer = 20
+	Public Property RequestInterval As Integer = 50
 
 
 	Private Overloads Function GetContentStream() As Stream

@@ -1,6 +1,7 @@
 ﻿Public Class ArgsParser
 	Public Help As Boolean = False
 	Public Kuwo As Boolean = False
+	Public Lyric As Boolean = False
 	Public url As String
 	Protected Arguments As String()
 
@@ -11,7 +12,9 @@
 		For Each arg In Arguments
 			arg = LCase(arg)
 			If TestArg(arg, "help") Then Help = True : Return Me
-			If TestArg(arg, "kuwo") Then Kuwo = True : Continue For
+			If TestArg(arg, "lyric") Then Lyric = True : Continue For
+
+			If arg.Contains("kuwo.cn") Then Kuwo = True
 			If arg IsNot "" Then url = arg : Return Me
 		Next
 

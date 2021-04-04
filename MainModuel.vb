@@ -31,9 +31,11 @@
 	Sub PutsHelp()
 		Console.ResetColor()
 		Console.WriteLine(
-$"[指令]		缩写指令	参数			解释
-HELP		-h | /h		无			显示帮助信息
-KUWO		-k | /k		[url]			下载[url]指定的歌曲 (音源:酷我音乐)
+$"[以下为帮助信息]
+	[指令/参数]	缩写指令	解释
+	HELP		-h | /h		显示帮助信息
+	LYRIC		-l | /l		指定是否下载歌词
+	[url]		   无		指定需要下载的url (现仅支持酷我音乐)
 "
 )
 	End Sub
