@@ -75,7 +75,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Gossamer.vb" />
+    <Compile Include="WebProtocol.vb" />
     <Compile Include="Hosts\KuwoMusic.vb" />
     <Compile Include="MainModuel.vb" />
     <Compile Include="MusicBase.vb" />

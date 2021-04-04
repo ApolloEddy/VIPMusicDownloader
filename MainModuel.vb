@@ -20,8 +20,7 @@
 	End Sub
 	Sub TestSub()
 		Dim kw As New KuwoMusic()
-		Dim page = kw.GetPageContentDocument("http://www.kuwo.cn/playlist_detail/3174330312")
-		kw.GetPlayList(page)
+		kw.GetSelfMadePlayList("2853625919")
 	End Sub
 	Sub PutsError(message As String)
 		Console.ResetColor()

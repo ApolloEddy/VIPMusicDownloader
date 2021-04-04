@@ -2,6 +2,7 @@
 	Public Const musicURL As String = "http://www.kuwo.cn/url?format={format}&rid={rid}&response=url&type=convert_url3&br={br}&from=web&httpsStatus=1"
 	Public Const jsonURL As String = "http://m.kuwo.cn/newh5/singles/songinfoandlrc?musicId={musicId}&httpsStatus=1"
 	Public Const HostURL As String = "http://www.kuwo.cn"
+	Public Const HandphoneJsonUrl As String = "http://m.kuwo.cn/newh5app/api/mobile/v1/music/playlist/{id}?pn={pn}&rn={rn}"
 	Protected UnDownloaded As Integer = 0
 	Protected rand As New Random(CLng($"{Hour(Now)}{Second(Now)}{Date.Now.Millisecond}"))
 
@@ -20,9 +21,23 @@
 		ElseIf url.Contains("play_detail") Then
 			Console.WriteLine("[提示] 这是一首单曲，即将下载...")
 			DownloadSingleSong(url, path)
+		ElseIf url.Contains("m.kuwo.cn/h5app/") And url.Contains("/playlist/") Then
+			Console.WriteLine("[提示] 这是一个临时歌单链接(自建歌单)，即将下载整部歌单...")
+			Dim listid As String = TextParser.RegParseOne(url, "[0-9]{3,}")
+			Dim plist As List(Of String) = GetSelfMadePlayList(listid)
+			path += GetSelfMadePlayListName(url) + "\"
+			IO.Directory.CreateDirectory(path)
+			DownloadList(plist, path)
+			Console.WriteLine($"共计捕获 [{plist.Count}] 首歌， 成功下载了 [{plist.Count - UnDownloaded}] 首歌！")
 		Else
 			PutsError($"错误或暂时无法识别的url链接，请检查后重试！") : Exit Sub
 		End If
+	End Sub
+	Public Sub DownloadList(playList As List(Of String), path As String)
+		For Each song As String In playList
+			DownloadSingleSong(song, path)
+			Threading.Thread.Sleep(rand.Next(5, 20)) ' 防御反爬虫措施
+		Next
 	End Sub
 	Public Sub DownloadSingleSong(url As String, path As String)
 		Dim mid As String
@@ -55,11 +70,17 @@
 		' http://www.kuwo.cn/play_detail/27781486
 		' 检查url格式
 		Dim uri As New Uri(url)
-		If Not uri.AbsoluteUri.StartsWith("http://www.kuwo.cn/") Then
+		If Not uri.AbsoluteUri.StartsWith("http://www.kuwo.cn/") Or uri.AbsoluteUri.StartsWith("m.kuwo.cn") Then
 			Throw New ArgumentException($"错误的url：[{url}]！")
 		End If
 		' 分析url，获取musicid
-		Dim retMusicId As String = uri.AbsoluteUri.Replace("http://www.kuwo.cn/play_detail/", "").Replace("http://www.kuwo.cn/playlist_detail/", "").Replace("/", "").Replace("\", "")
+		Dim retMusicId As String =
+			uri.AbsoluteUri.
+			Replace("http://www.kuwo.cn/play_detail/", "").
+			Replace("http://www.kuwo.cn/playlist_detail/", "").
+			Replace("http://m.kuwo.cn/newh5app/api/mobile/v1/music/playlist/", "").
+			Replace("m.kuwo.cn/newh5app/", "").
+			Replace("/", "").Replace("\", "")
 		If IsNumeric(retMusicId) Then Return retMusicId Else Throw New Exception("[musicId] 解析失败！")
 	End Function
 	Public Function GetMusicInfoJson(musicId As String) As String
@@ -113,18 +134,31 @@ $"已抓获歌曲内容如下：
 	End Function
 	Public Function GetPlayList(page As String) As List(Of String)
 		Dim ret As New List(Of String)
-		For Each r As String In TextParser.RegParse(page, "<a(\s*)title=""(.+?)""(\s*)href=""(.+?)""(\s*)class=""name""(\s*)data-v(.+?)>")
-			ret.Add(HostURL + TextParser.ExtractOne(r, "href=""", """"))
+		For Each s As String In TextParser.RegParse(page, "<a(\s*)title=""(.+?)""(\s*)href=""(.+?)""(\s*)class=""name""(\s*)data-v(.+?)>")
+			ret.Add(HostURL + TextParser.ExtractOne(s, "href=""", """"))
 		Next
 		Console.WriteLine($"共抓取到 [{ret.Count}] 首歌曲，即将开始下载...{vbNewLine}")
 		Return ret
 	End Function
-	Public Sub DownloadList(playList As List(Of String), path As String)
-		For Each song As String In playList
-			DownloadSingleSong(song, path)
-			Threading.Thread.Sleep(rand.Next(5, 20)) ' 防御反爬虫措施
-		Next
-	End Sub
+	Public Function GetSelfMadePlayListName(url As String) As String
+		Dim page As String = New WebProtocol(url, False).GetContentDocument()
+		Return GetPlistName(page)
+	End Function
+	Public Function GetSelfMadePlayList(listId As String) As List(Of String)
+		Dim ret As New List(Of String)
+		Dim i As Integer = 0
+		Dim page = New WebProtocol(HandphoneJsonUrl.Replace("{id}", listId).Replace("{pn}", i.ToString).Replace("{rn}", "1"), False).GetContentDocument()
+		Dim total As String = TextParser.ExtractOne(page, """total"":", ",")
+		Do
+			i += 1
+			page = New WebProtocol(HandphoneJsonUrl.Replace("{id}", listId).Replace("{pn}", i.ToString).Replace("{rn}", total), False).GetContentDocument()
+			For Each s As String In TextParser.Extract(page, """id"":", ",""name""")
+				ret.Add("http://www.kuwo.cn/play_detail/" + s)
+			Next
+		Loop Until i * 100 > total
+		Console.WriteLine($"共抓取到 [{ret.Count}] 首歌曲，即将开始下载...{vbNewLine}")
+		Return ret
+	End Function
 End Class
 
 Public Structure MusicInfo

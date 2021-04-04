@@ -3,14 +3,14 @@
 Public MustInherit Class MusicBase
 	Protected Friend Function GetPageContentDocument(url As String) As String
 		Dim page As String
-		Dim gossamer As New Gossamer(url)
+		Dim gossamer As New WebProtocol(url)
 		page = gossamer.getContentDocument()
 		Return page
 	End Function
 	Protected Friend Function GetContent(url As String) As Byte()
 		Dim bytes As Byte()
-		Dim gossamer As New Gossamer(url)
-		bytes = gossamer.getContentBytes()
+		Dim gossamer As New WebProtocol(url)
+		bytes = gossamer.GetContentBytes()
 		Return bytes
 	End Function
 	Protected Friend Sub SaveAudio(bytes As Byte(), path As String)
