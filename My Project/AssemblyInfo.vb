@@ -12,8 +12,8 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyDescription("一款免费的会员音乐下载器")>
 <Assembly: AssemblyCompany("Apollo Soft")>
 <Assembly: AssemblyProduct("VIPMusicDownloader")>
-<Assembly: AssemblyCopyright("Copyright ©  2021")>
-<Assembly: AssemblyTrademark("")>
+<Assembly: AssemblyCopyright("Copyright (C)  2021")>
+<Assembly: AssemblyTrademark("㏇Apollo Soft")>
 
 <Assembly: ComVisible(True)>
 
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 '通过使用 "*"，如下所示:
 ' <Assembly: AssemblyVersion("1.0.*")>
 
-<Assembly: AssemblyVersion("1.0.0.0")>
-<Assembly: AssemblyFileVersion("1.0.0.0")>
+<Assembly: AssemblyVersion("1.4.0.0")>
+<Assembly: AssemblyFileVersion("1.4.0.0")>

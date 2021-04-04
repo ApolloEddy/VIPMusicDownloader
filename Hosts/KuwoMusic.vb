@@ -63,7 +63,7 @@
 		Catch ex As Exception
 			PutsError(ex.Message) : Exit Sub
 		End Try
-		Console.WriteLine($"完成！{vbNewLine}")
+		Console.WriteLine($"完成！")
 		If lyric Then
 			Console.Write("正在保存歌词(文件名与音乐文件名相同)...")
 			SaveLyrics(musicInfo, path)
@@ -72,6 +72,7 @@
 		Console.WriteLine($"歌曲 [{musicInfo.Name} - {musicInfo.Artist}] 已下载至目录 ""{fpath}""{vbNewLine}")
 	End Sub
 	Public Sub SaveLyrics(musicInfo As MusicInfo, path As String)
+		If musicInfo.Lyric.Count = 0 Then Console.Write("此歌曲没有捕获歌词，将不会保存歌词文件(*.lrc)...")
 		Dim file = New IO.FileInfo(path + musicInfo.Name + " - " + musicInfo.Artist + ".lrc").CreateText()
 		For Each item As String In musicInfo.Lyric
 			file.WriteLine(item + vbNewLine)
@@ -124,9 +125,11 @@
 	End Function
 	Public Sub PutsMusicInfo(musicInfo As MusicInfo)
 		Console.ResetColor()
+		Console.ForegroundColor = ConsoleColor.Blue
+		Console.WriteLine("已抓获歌曲内容如下：")
+		Console.ResetColor()
 		Console.Write(
-$"已抓获歌曲内容如下：
-      [音源] 酷我音乐
+$"    [音源] 酷我音乐
       [曲名] {musicInfo.Name}
       [歌手] {musicInfo.Artist}
       [专辑] {musicInfo.Album}
@@ -233,10 +236,16 @@ Public Structure MusicInfo
 		Dim ret As New List(Of String)
 		' 第一步，获取整个数组
 		Dim lrclist As String = TextParser.ExtractOne(json, "lrclist"":\[", "\]")
+		If lrclist = "" Then Return ret
 		' 第二步，拆分数组
 		Dim line As String
 		For Each item As String In TextParser.Extract(lrclist, "{", "}")
-			line = $"[{TextParser.ExtractOne(item, """time"":""", """}")}]{TextParser.ExtractOne(item, "{""lineLyric"":""", """,")}"
+			' 计算时长 ----- 我放弃了 TaT
+			' 暂时先不加时长了，费死劲了啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊
+			'Dim time As String = ""
+			'Dim stime As Double = CDbl($"{TextParser.ExtractOne(item, """time"":""", """")}")
+			'time = If(stime / 60 > 9, $"{CInt(stime / 60)}:{(stime - (CInt(stime / 60)) * 60)}", $"0{CInt(stime / 60)}:{stime - (CInt(stime / 60)) * 60}")
+			line = $"{TextParser.ExtractOne(item, """lineLyric"":""", """,")}"
 			ret.Add(line)
 		Next
 		Return ret

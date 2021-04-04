@@ -15,7 +15,7 @@
 			If TestArg(arg, "lyric") Then Lyric = True : Continue For
 
 			If arg.Contains("kuwo.cn") Then Kuwo = True
-			If arg IsNot "" Then url = arg : Return Me
+			If arg IsNot "" Then url = arg : Continue For
 		Next
 
 		Return Me
